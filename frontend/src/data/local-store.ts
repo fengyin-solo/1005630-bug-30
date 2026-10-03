@@ -2,7 +2,8 @@ import { SEED_ROWS } from './seed'
 import type { EntryRow } from './types'
 
 // 本地持久化：数据放在 localStorage 里，刷新、关掉再打开都还在。
-const STORAGE_KEY = 'district-heating:entries'
+// v2：停暖通知/入户服务按客服口径重做状态机，旧版结构不再兼容，直接用新示例数据播种。
+const STORAGE_KEY = 'district-heating:entries:v2'
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T

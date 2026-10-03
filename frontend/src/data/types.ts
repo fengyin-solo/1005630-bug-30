@@ -30,6 +30,8 @@ export type PageResult = {
 export type ActionResult = {
   ok: boolean
   message: string
+  // info=true 表示幂等命中或挂起提示：操作被接受但没有重复落数据，页面按普通提示而非报错展示。
+  info?: boolean
 }
 
 export type OverviewResult = {

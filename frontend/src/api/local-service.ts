@@ -1,5 +1,10 @@
 import { MODULE_BY_KEY } from '@/data/modules'
 import { allRows, listRows, resetRows, saveRows } from '@/data/local-store'
+import {
+  canonicalAreaText,
+  runHouseholdAction,
+  runNoticeAction,
+} from '@/domain/heatnotice'
 import type { ActionResult, EntryRow, ModuleMeta, OverviewResult, PageResult } from '@/data/types'
 
 // 会写进数据的「往回走」动作：命中就把这条记录标成异常态，看板上能一眼看出来。
@@ -28,7 +33,19 @@ export function listEntries(key: string, filters: Record<string, string> = {}): 
   return { items: matched, total: matched.length, page: 1, size: matched.length }
 }
 
-export function runAction(key: string, id: number, action: string): ActionResult {
+export function runAction(
+  key: string,
+  id: number,
+  action: string,
+  extra: Record<string, string> = {},
+): ActionResult {
+  // 停暖通知与入户台账有自己的客服口径（状态机、影响片区核定、撤销幂等、待补发回写），不走通用流转。
+  if (key === 'heatnotice') {
+    return runNoticeAction(id, action, { area: extra.area })
+  }
+  if (key === 'householdservice') {
+    return runHouseholdAction(id, action)
+  }
   const meta = moduleMeta(key)
   const target = meta.actionTargets[action]
   if (!target) {
@@ -66,7 +83,11 @@ export function exportEntries(key: string): { filename: string; content: string 
   const header = ['编号', ...meta.fields, '当前状态']
   const lines = [header.join(',')]
   for (const row of listRows(key)) {
-    lines.push([row.id, ...meta.fields.map((field) => row[field] ?? ''), row.status].join(','))
+    lines.push([
+      row.id,
+      ...meta.fields.map((field) => (field === '影响片区' ? canonicalAreaText(row) : row[field] ?? '')),
+      row.status,
+    ].join(','))
   }
   return { filename: `${meta.name}-清单.csv`, content: `\uFEFF${lines.join('\n')}` }
 }

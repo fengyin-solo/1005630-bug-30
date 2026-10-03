@@ -68,4 +68,7 @@ npm run build
 - 字段、状态、动作与流转目标集中在 `frontend/src/data/modules.ts`；示例数据在
   `frontend/src/data/seed.ts`。
 - 状态流转只允许在 `local-service.ts` 里改，页面组件不做业务判断。
-- 想回到初始数据：清掉浏览器里 `district-heating:entries` 这一项，或调用 `resetModule(模块)`。
+- 停暖通知与入户服务的客服口径（发布口径、影响片区核定、片区缺失挂起、撤销幂等、待补发回写）
+  集中在 `frontend/src/domain/heatnotice.ts`；撤销停暖通知会在入户台账的「待补发清单」回写一条
+  （按关联通知编号去重，重复撤销只落一条）。
+- 想回到初始数据：清掉浏览器里 `district-heating:entries:v2` 这一项，或调用 `resetModule(模块)`。
